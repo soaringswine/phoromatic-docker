@@ -1,0 +1,23 @@
+# Logs
+*.log
+*.log.*
+
+# Swap files
+*.swp
+
+# Node packages
+node_modules/
+
+# Python environments
+venv/
+__pycache__/
+*.py[cod]
+
+# Build outputs
+dist/
+build/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
