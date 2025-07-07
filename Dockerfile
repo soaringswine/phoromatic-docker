@@ -18,11 +18,19 @@ RUN apt-get update -y \
     && apt-get autoremove -y \
     && rm -rf /var/lib/{apt,dpkg,cache,log}/
 
+# Create phoromatic user and group
+RUN groupadd -r phoromatic && useradd -r -g phoromatic phoromatic \
+    && mkdir -p /phoronix-test-suite \
+    && chown -R phoromatic:phoromatic /phoronix-test-suite
+
 # Set environment variable for Phoromatic server port
 ENV PHOROMATIC_HTTP_PORT=8287
 
 # Expose Phoromatic server port
 EXPOSE 8287/tcp
+
+# Use phoromatic user to run the server
+USER phoromatic
 
 # Start Phoromatic server when container starts
 CMD ["/phoronix-test-suite/phoronix-test-suite", "start-phoromatic-server"]
