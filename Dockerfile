@@ -1,10 +1,10 @@
-# Use phoronix/pts as the base image
-FROM phoronix/pts:latest
+# Use phoronix/pts as the base image for building
+FROM phoronix/pts:latest AS builder
 
-# Avoid prompts from apt
+# Avoid prompts from apt during build
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update and install necessary packages
+# Install packages needed to prepare the runtime image
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends --no-install-suggests \
        php-sqlite3 \
@@ -12,12 +12,34 @@ RUN apt-get update -y \
        unzip \
        php-zip \
        build-essential \
-       autoconf
-
-# Clean up to reduce image size
-RUN apt-get clean autoclean \
+       autoconf \
+    && apt-get clean autoclean \
     && apt-get autoremove -y \
     && rm -rf /var/lib/{apt,dpkg,cache,log}/
+
+# Copy the Phoronix Test Suite for later use
+COPY . /phoronix-test-suite
+
+######################################################################
+
+FROM phoronix/pts:latest
+
+# Avoid prompts from apt in the final image
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install runtime packages only
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends --no-install-suggests \
+       php-sqlite3 \
+       zip \
+       unzip \
+       php-zip \
+    && apt-get clean autoclean \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/{apt,dpkg,cache,log}/
+
+# Copy built files from the builder stage
+COPY --from=builder /phoronix-test-suite /phoronix-test-suite
 
 # Create phoromatic user and group
 RUN groupadd -r phoromatic && useradd -r -g phoromatic phoromatic \
