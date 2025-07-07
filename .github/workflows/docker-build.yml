@@ -1,0 +1,33 @@
+name: Docker Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Clean previous container
+        run: docker rm -f phoromatic 2>/dev/null || true
+
+      - name: Build Docker image
+        run: docker build -t phoromatic-server .
+
+      - name: Start container
+        run: docker run -d -p 8287:8287 --name phoromatic phoromatic-server
+
+      - name: Wait for server
+        run: |
+          set -e
+          timeout 60 bash -c 'until curl -fs http://localhost:8287 >/dev/null 2>&1; do sleep 5; done'
+
+      - name: Stop container
+        if: always()
+        run: |
+          docker stop phoromatic
+          docker rm phoromatic
