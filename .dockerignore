@@ -1,0 +1,10 @@
+.git/
+.github/
+
+# Build and editor artifacts
+*.log
+*.tmp
+*.pyc
+__pycache__/
+*~
+*.swp
