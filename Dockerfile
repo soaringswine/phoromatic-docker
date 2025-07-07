@@ -12,9 +12,10 @@ RUN apt-get update -y \
        unzip \
        php-zip \
        build-essential \
-       autoconf \
-    # Clean up to reduce image size
-    && apt-get clean autoclean \
+       autoconf
+
+# Clean up to reduce image size
+RUN apt-get clean autoclean \
     && apt-get autoremove -y \
     && rm -rf /var/lib/{apt,dpkg,cache,log}/
 
