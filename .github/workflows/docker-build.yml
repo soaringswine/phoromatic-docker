@@ -1,0 +1,21 @@
+---
+# yamllint disable rule:truthy
+name: Docker Build
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build image
+        run: docker build -t phoromatic .
+      - name: Run container test
+        run: |
+          timeout 30s docker run --rm phoromatic \
+            /phoronix-test-suite start-phoromatic-server
